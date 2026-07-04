@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InterviewPrep.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260704114635_AddProfileAndAISupport")]
-    partial class AddProfileAndAISupport
+    [Migration("20260704115135_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
