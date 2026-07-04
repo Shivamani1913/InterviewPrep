@@ -9,9 +9,9 @@ obj/
 # Node modules
 node_modules/
 
-# Environment files
-.env
-.env.local
+# Secret files - never commit
+InterviewPrep.API/appsettings.json
+InterviewPrep.API/appsettings.Development.json
 
 # Database files
 *.mdf
