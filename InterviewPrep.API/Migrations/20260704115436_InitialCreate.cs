@@ -15,12 +15,12 @@ namespace InterviewPrep.API.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, defaultValue: "User"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: "User"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,14 +31,14 @@ namespace InterviewPrep.API.Migrations
                 name: "Contests",
                 columns: table => new
                 {
-                    ContestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ContestName = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Platform = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Rank = table.Column<int>(type: "int", nullable: false),
-                    RatingBefore = table.Column<int>(type: "int", nullable: false),
-                    RatingAfter = table.Column<int>(type: "int", nullable: false),
+                    ContestId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ContestName = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    Platform = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Rank = table.Column<int>(type: "integer", nullable: false),
+                    RatingBefore = table.Column<int>(type: "integer", nullable: false),
+                    RatingAfter = table.Column<int>(type: "integer", nullable: false),
                     ContestDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,14 +55,14 @@ namespace InterviewPrep.API.Migrations
                 name: "Goals",
                 columns: table => new
                 {
-                    GoalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    TargetCount = table.Column<int>(type: "int", nullable: false),
-                    CurrentCount = table.Column<int>(type: "int", nullable: false),
-                    Deadline = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsCompleted = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    GoalId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    TargetCount = table.Column<int>(type: "integer", nullable: false),
+                    CurrentCount = table.Column<int>(type: "integer", nullable: false),
+                    Deadline = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsCompleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,13 +79,13 @@ namespace InterviewPrep.API.Migrations
                 name: "Notes",
                 columns: table => new
                 {
-                    NoteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Topic = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    NoteId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    Topic = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -102,15 +102,15 @@ namespace InterviewPrep.API.Migrations
                 name: "Problems",
                 columns: table => new
                 {
-                    ProblemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Platform = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Difficulty = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Topic = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ProblemId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    Platform = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Difficulty = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Topic = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     SolvedDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
-                    ProblemUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Notes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    ProblemUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,11 +127,11 @@ namespace InterviewPrep.API.Migrations
                 name: "Streaks",
                 columns: table => new
                 {
-                    StreakId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CurrentStreak = table.Column<int>(type: "int", nullable: false),
-                    LongestStreak = table.Column<int>(type: "int", nullable: false),
+                    StreakId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CurrentStreak = table.Column<int>(type: "integer", nullable: false),
+                    LongestStreak = table.Column<int>(type: "integer", nullable: false),
                     LastSolvedDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
