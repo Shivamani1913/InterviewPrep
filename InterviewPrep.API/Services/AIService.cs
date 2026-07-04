@@ -20,6 +20,7 @@ namespace InterviewPrep.API.Services
         {
             _httpClient = httpClient;
             _apiKey = config["Groq:ApiKey"]
+                ?? Environment.GetEnvironmentVariable("GROQ_API_KEY")
                 ?? throw new InvalidOperationException("Groq API key not configured");
         }
 

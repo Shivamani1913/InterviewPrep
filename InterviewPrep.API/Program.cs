@@ -9,10 +9,22 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(databaseUrl));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
 
 var jwtSecretKey = builder.Configuration["Jwt:SecretKey"]
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
     ?? throw new InvalidOperationException("JWT SecretKey not configured");
 
 builder.Services.AddAuthentication(options =>
@@ -28,8 +40,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "InterviewPrepAPI",
+        ValidAudience = builder.Configuration["Jwt:Audience"] ?? "InterviewPrepApp",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
         ClockSkew = TimeSpan.Zero
     };
@@ -42,13 +54,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:3000"
-            )
+            .AllowAnyOrigin()
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
+            .AllowAnyHeader();
     });
 });
 
@@ -108,11 +116,8 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
