@@ -87,5 +87,11 @@ namespace InterviewPrep.API.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(w =>
+                w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        }
     }
 }
