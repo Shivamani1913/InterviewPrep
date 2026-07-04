@@ -1,0 +1,21 @@
+﻿# Visual Studio
+.vs/
+*.user
+
+# .NET Build outputs
+bin/
+obj/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# Database files
+*.mdf
+*.ldf
+
+# Logs
+*.log
