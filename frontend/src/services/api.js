@@ -1,4 +1,4 @@
-﻿import axios from "axios";
+import axios from "axios";
 
 const API = axios.create({
   baseURL: "https://interviewprep-production-4d4f.up.railway.app/api",
