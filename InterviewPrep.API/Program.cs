@@ -17,7 +17,6 @@ if (!string.IsNullOrEmpty(databaseUrl))
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
     var npgsqlConnection = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
-
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(npgsqlConnection));
 }
@@ -27,9 +26,17 @@ else
         options.UseSqlServer(connectionString));
 }
 
-var jwtSecretKey = builder.Configuration["Jwt:SecretKey"]
-    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? builder.Configuration["Jwt:SecretKey"]
     ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer")
+    ?? builder.Configuration["Jwt:Issuer"]
+    ?? "InterviewPrepAPI";
+
+var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience")
+    ?? builder.Configuration["Jwt:Audience"]
+    ?? "InterviewPrepApp";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -44,8 +51,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "InterviewPrepAPI",
-        ValidAudience = builder.Configuration["Jwt:Audience"] ?? "InterviewPrepApp",
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
         ClockSkew = TimeSpan.Zero
     };
@@ -91,7 +98,6 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Interview Prep Platform API",
         Version = "v1"
     });
-
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -101,7 +107,6 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Description = "Enter: Bearer {your-jwt-token}"
     });
-
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -122,7 +127,6 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
