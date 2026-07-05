@@ -1,7 +1,7 @@
 ﻿import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5116/api",
+  baseURL: "https://interviewprep-production-4d4f.up.railway.app/api",
   headers: { "Content-Type": "application/json" },
 });
 
