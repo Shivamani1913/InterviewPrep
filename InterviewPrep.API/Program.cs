@@ -9,42 +9,26 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? "postgresql://postgres:czpPmknTbwrPLcqqvyBRyFxZgDcRXDiV@shinkansen.proxy.rlwy.net:12640/railway";
 
-if (!string.IsNullOrEmpty(databaseUrl))
+try
 {
-    try
-    {
-        var uri = new Uri(databaseUrl);
-        var userInfo = uri.UserInfo.Split(':');
-        var npgsqlConnection = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
-        builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(npgsqlConnection));
-    }
-    catch
-    {
-        builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(databaseUrl));
-    }
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    var npgsqlConnection = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(npgsqlConnection));
 }
-else
+catch
 {
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 
-var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-    ?? builder.Configuration["Jwt:SecretKey"]
-    ?? throw new InvalidOperationException("JWT SecretKey not configured");
-
-var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer")
-    ?? builder.Configuration["Jwt:Issuer"]
-    ?? "InterviewPrepAPI";
-
-var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience")
-    ?? builder.Configuration["Jwt:Audience"]
-    ?? "InterviewPrepApp";
+var jwtSecretKey = "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity2024!";
+var jwtIssuer = "InterviewPrepAPI";
+var jwtAudience = "InterviewPrepApp";
 
 builder.Services.AddAuthentication(options =>
 {
