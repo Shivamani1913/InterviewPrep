@@ -10,13 +10,14 @@ export default function Goals() {
   const [editingProgress, setEditingProgress] = useState(null);
   const [newProgress, setNewProgress] = useState("");
   const [form, setForm] = useState({ description: "", targetCount: "", deadline: "" });
+  const [error, setError] = useState("");
 
   const fetchGoals = async () => {
     try {
       const res = await goalsAPI.getAll();
       setGoals(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch goals error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -28,25 +29,37 @@ export default function Goals() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await goalsAPI.create({ description: form.description, targetCount: parseInt(form.targetCount), deadline: form.deadline || null });
+      await goalsAPI.create({
+        description: form.description,
+        targetCount: parseInt(form.targetCount),
+        deadline: form.deadline || null
+      });
       setShowForm(false);
       setForm({ description: "", targetCount: "", deadline: "" });
       fetchGoals();
     } catch (err) {
-      console.error(err);
+      console.error("Create goal error:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleUpdateProgress = async (goalId) => {
+    const count = parseInt(newProgress);
+    if (isNaN(count) || count < 0) {
+      setError("Please enter a valid number");
+      return;
+    }
+    setError("");
     try {
-      await goalsAPI.updateProgress(goalId, parseInt(newProgress));
+      const response = await goalsAPI.updateProgress(goalId, count);
+      console.log("Update response:", response.data);
       setEditingProgress(null);
       setNewProgress("");
-      fetchGoals();
+      await fetchGoals();
     } catch (err) {
-      console.error(err);
+      console.error("Update progress error:", err);
+      setError("Failed to update progress: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -56,7 +69,7 @@ export default function Goals() {
       await goalsAPI.delete(id);
       fetchGoals();
     } catch (err) {
-      console.error(err);
+      console.error("Delete goal error:", err);
     }
   };
 
@@ -74,6 +87,9 @@ export default function Goals() {
           </div>
           <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">+ Add Goal</button>
         </div>
+
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{error}</div>}
+
         {showForm && (
           <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
             <h2 className="font-medium text-gray-900 mb-4">New Goal</h2>
@@ -84,12 +100,15 @@ export default function Goals() {
                 <input type="date" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
               </div>
               <div className="flex gap-2">
-                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">{isSubmitting ? "Saving..." : "Save Goal"}</button>
+                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  {isSubmitting ? "Saving..." : "Save Goal"}
+                </button>
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-gray-600 text-sm rounded-lg border border-gray-300 hover:bg-gray-50">Cancel</button>
               </div>
             </form>
           </div>
         )}
+
         {isLoading ? (
           <div className="text-center py-12 text-gray-400">Loading...</div>
         ) : goals.length === 0 ? (
@@ -119,12 +138,35 @@ export default function Goals() {
                         <span className="text-sm text-gray-500">{goal.currentCount} / {goal.targetCount}</span>
                         {editingProgress === goal.goalId ? (
                           <div className="flex items-center gap-2">
-                            <input type="number" value={newProgress} onChange={e => setNewProgress(e.target.value)} placeholder="New count" className="border border-gray-300 rounded px-2 py-1 text-sm w-24" />
-                            <button onClick={() => handleUpdateProgress(goal.goalId)} className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700">Save</button>
-                            <button onClick={() => setEditingProgress(null)} className="px-3 py-1 border border-gray-300 text-gray-600 text-xs rounded-lg hover:bg-gray-50">Cancel</button>
+                            <input
+                              type="number"
+                              value={newProgress}
+                              onChange={e => setNewProgress(e.target.value)}
+                              placeholder="New count"
+                              min="0"
+                              max={goal.targetCount}
+                              className="border border-gray-300 rounded px-2 py-1 text-sm w-24"
+                            />
+                            <button
+                              onClick={() => handleUpdateProgress(goal.goalId)}
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingProgress(null); setNewProgress(""); setError(""); }}
+                              className="px-3 py-1 border border-gray-300 text-gray-600 text-xs rounded-lg hover:bg-gray-50"
+                            >
+                              Cancel
+                            </button>
                           </div>
                         ) : (
-                          <button onClick={() => { setEditingProgress(goal.goalId); setNewProgress(goal.currentCount.toString()); }} className="text-xs text-blue-600 hover:underline">Update progress</button>
+                          <button
+                            onClick={() => { setEditingProgress(goal.goalId); setNewProgress(goal.currentCount.toString()); }}
+                            className="text-xs text-blue-600 hover:underline"
+                          >
+                            Update progress
+                          </button>
                         )}
                       </div>
                     </div>
@@ -132,6 +174,7 @@ export default function Goals() {
                 </div>
               </div>
             )}
+
             {completedGoals.length > 0 && (
               <div>
                 <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Completed Goals</h2>
