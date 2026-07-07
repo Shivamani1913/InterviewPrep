@@ -56,16 +56,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy
-            .WithOrigins(
-                "https://interview-prep-kohl.vercel.app",
-                "https://interview-prep-git-main-shivamani1913s-projects.vercel.app",
-                "http://localhost:5173",
-                "http://localhost:3000"
-            )
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
@@ -125,6 +118,20 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        return;
+    }
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
@@ -138,4 +145,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-// cors fix
