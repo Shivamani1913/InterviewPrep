@@ -13,12 +13,12 @@
         {
             context.Response.Headers["Access-Control-Allow-Origin"] = "*";
             context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH";
-            context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, Accept";
+            context.Response.Headers["Access-Control-Allow-Headers"] = "*";
+            context.Response.Headers["Access-Control-Max-Age"] = "86400";
 
             if (context.Request.Method == "OPTIONS")
             {
-                context.Response.StatusCode = 200;
-                await context.Response.WriteAsync("OK");
+                context.Response.StatusCode = 204;
                 return;
             }
 
