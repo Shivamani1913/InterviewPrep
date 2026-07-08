@@ -8,18 +8,12 @@ namespace InterviewPrep.API.Helpers
 {
     public class JwtHelper
     {
-        private readonly string _secretKey;
-        private readonly string _issuer;
-        private readonly string _audience;
-        private readonly int _expiryHours;
+        public const string SecretKey = "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity2024!";
+        public const string Issuer = "InterviewPrepAPI";
+        public const string Audience = "InterviewPrepApp";
+        public const int ExpiryHours = 24;
 
-        public JwtHelper(IConfiguration config)
-        {
-            _secretKey = "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity2024!";
-            _issuer = "InterviewPrepAPI";
-            _audience = "InterviewPrepApp";
-            _expiryHours = 24;
-        }
+        public JwtHelper(IConfiguration config) { }
 
         public string GenerateToken(User user)
         {
@@ -33,14 +27,14 @@ namespace InterviewPrep.API.Helpers
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _issuer,
-                audience: _audience,
+                issuer: Issuer,
+                audience: Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(_expiryHours),
+                expires: DateTime.UtcNow.AddHours(ExpiryHours),
                 signingCredentials: credentials
             );
 

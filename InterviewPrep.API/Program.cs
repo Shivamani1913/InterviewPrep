@@ -27,10 +27,6 @@ catch
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 
-var jwtSecretKey = "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity2024!";
-var jwtIssuer = "InterviewPrepAPI";
-var jwtAudience = "InterviewPrepApp";
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -44,9 +40,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
+        ValidIssuer = JwtHelper.Issuer,
+        ValidAudience = JwtHelper.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(JwtHelper.SecretKey)),
         ClockSkew = TimeSpan.Zero
     };
 });
