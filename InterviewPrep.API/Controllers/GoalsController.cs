@@ -2,6 +2,7 @@
 using InterviewPrep.API.Helpers;
 using InterviewPrep.API.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InterviewPrep.API.Controllers
@@ -9,6 +10,7 @@ namespace InterviewPrep.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [EnableCors("AllowAll")]
     public class GoalsController : ControllerBase
     {
         private readonly IGoalService _goalService;
