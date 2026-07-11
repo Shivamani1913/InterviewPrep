@@ -29,16 +29,18 @@ export default function Goals() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await goalsAPI.create({
+      const goalData = {
         description: form.description,
         targetCount: parseInt(form.targetCount),
-        deadline: form.deadline || null
-      });
+        deadline: form.deadline ? new Date(form.deadline).toISOString() : null
+      };
+      await goalsAPI.create(goalData);
       setShowForm(false);
       setForm({ description: "", targetCount: "", deadline: "" });
       fetchGoals();
     } catch (err) {
       console.error("Create goal error:", err);
+      setError("Failed to create goal: " + (err.response?.data?.message || err.message));
     } finally {
       setIsSubmitting(false);
     }
@@ -52,14 +54,13 @@ export default function Goals() {
     }
     setError("");
     try {
-      const response = await goalsAPI.updateProgress(goalId, count);
-      console.log("Update response:", response.data);
+      await goalsAPI.updateProgress(goalId, count);
       setEditingProgress(null);
       setNewProgress("");
       await fetchGoals();
     } catch (err) {
       console.error("Update progress error:", err);
-      setError("Failed to update progress: " + (err.response?.data?.message || err.message));
+      setError("Failed to update: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -69,7 +70,7 @@ export default function Goals() {
       await goalsAPI.delete(id);
       fetchGoals();
     } catch (err) {
-      console.error("Delete goal error:", err);
+      console.error(err);
     }
   };
 
@@ -94,10 +95,31 @@ export default function Goals() {
           <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
             <h2 className="font-medium text-gray-900 mb-4">New Goal</h2>
             <form onSubmit={handleAdd} className="space-y-3">
-              <input placeholder="Goal description * (e.g. Solve 300 problems)" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+              <input
+                placeholder="Goal description * (e.g. Solve 300 problems)"
+                value={form.description}
+                onChange={e => setForm({...form, description: e.target.value})}
+                required
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              />
               <div className="grid grid-cols-2 gap-3">
-                <input type="number" placeholder="Target count * (e.g. 300)" value={form.targetCount} onChange={e => setForm({...form, targetCount: e.target.value})} required className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-                <input type="date" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                <input
+                  type="number"
+                  placeholder="Target count * (e.g. 300)"
+                  value={form.targetCount}
+                  onChange={e => setForm({...form, targetCount: e.target.value})}
+                  required
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Deadline (optional)</label>
+                  <input
+                    type="date"
+                    value={form.deadline}
+                    onChange={e => setForm({...form, deadline: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
               </div>
               <div className="flex gap-2">
                 <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
@@ -124,7 +146,11 @@ export default function Goals() {
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="font-medium text-gray-900">{goal.description}</div>
-                          {goal.deadline && <div className="text-xs text-gray-400 mt-0.5">Deadline: {new Date(goal.deadline).toLocaleDateString()}</div>}
+                          {goal.deadline && (
+                            <div className="text-xs text-gray-400 mt-0.5">
+                              Deadline: {new Date(goal.deadline).toLocaleDateString()}
+                            </div>
+                          )}
                         </div>
                         <button onClick={() => handleDelete(goal.goalId)} className="text-gray-400 hover:text-red-500 text-sm">✕</button>
                       </div>
@@ -144,29 +170,13 @@ export default function Goals() {
                               onChange={e => setNewProgress(e.target.value)}
                               placeholder="New count"
                               min="0"
-                              max={goal.targetCount}
                               className="border border-gray-300 rounded px-2 py-1 text-sm w-24"
                             />
-                            <button
-                              onClick={() => handleUpdateProgress(goal.goalId)}
-                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700"
-                            >
-                              Save
-                            </button>
-                            <button
-                              onClick={() => { setEditingProgress(null); setNewProgress(""); setError(""); }}
-                              className="px-3 py-1 border border-gray-300 text-gray-600 text-xs rounded-lg hover:bg-gray-50"
-                            >
-                              Cancel
-                            </button>
+                            <button onClick={() => handleUpdateProgress(goal.goalId)} className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700">Save</button>
+                            <button onClick={() => { setEditingProgress(null); setNewProgress(""); setError(""); }} className="px-3 py-1 border border-gray-300 text-gray-600 text-xs rounded-lg">Cancel</button>
                           </div>
                         ) : (
-                          <button
-                            onClick={() => { setEditingProgress(goal.goalId); setNewProgress(goal.currentCount.toString()); }}
-                            className="text-xs text-blue-600 hover:underline"
-                          >
-                            Update progress
-                          </button>
+                          <button onClick={() => { setEditingProgress(goal.goalId); setNewProgress(goal.currentCount.toString()); }} className="text-xs text-blue-600 hover:underline">Update progress</button>
                         )}
                       </div>
                     </div>
