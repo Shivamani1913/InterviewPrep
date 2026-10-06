@@ -9,12 +9,6 @@ A full-stack web application designed to help developers systematically track th
 
 ---
 
-## 🚀 Live Demo
-https://interview-prep-kohl.vercel.app
-Rilway+vercel
-
----
-
 ## 💡 Why This Project?
 
 Most students build Student Management Systems or Library Systems.
